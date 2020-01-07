@@ -1,2 +1,2 @@
 # SneakerTweeter
-Tweets about sneaks
+Tweets About Sneaks
