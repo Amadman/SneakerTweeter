@@ -17,8 +17,11 @@ async def on_ready():
 async def on_message(message):
   if message.author == client.user:
       return
-        
+  
   if message.content.startswith('!help'):
+    await message.channel.send('I am the SneakerHead. Type !help for this help message')
+        
+  if message.content.startswith('!latest'):
     api = twitter.Api(
       t.CONSUMER_KEY, t.CONSUMER_SECRET, t.ACCESS_TOKEN_KEY, t.ACCESS_TOKEN_SECRET
     )
