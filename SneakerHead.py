@@ -9,6 +9,9 @@ load_dotenv()
 token = os.getenv('DISCORD_TOKEN')
 client = discord.Client()
 
+subscription = ['Nike', 'Asics']
+list1 = []
+
 @client.event
 async def on_ready():
     print(f'{client.user} has connected to Discord!')
@@ -35,5 +38,26 @@ async def on_message(message):
     if len(timeline) > 0:
       latest_tweet = timeline[0]
       await message.channel.send(latest_tweet.text)
+
+  if message.content.startswith('!sub'):
+    api = twitter.Api(
+    t.CONSUMER_KEY, t.CONSUMER_SECRET, t.ACCESS_TOKEN_KEY, t.ACCESS_TOKEN_SECRET
+  )
+
+    timeline = api.GetUserTimeline(
+    screen_name='SneakerDealsGB',
+    count=10,
+    trim_user=True,
+    exclude_replies=True,
+  ) 
+
+    for tweet in timeline:
+      for x in subscription:
+        if x in tweet.text:
+          await message.channel.send(tweet.text)
+
+  if message.content.startswith('!new'):
+    list1.append(message.content[4:])
+    await message.channel.send(list1[0])
 
 client.run(token)
