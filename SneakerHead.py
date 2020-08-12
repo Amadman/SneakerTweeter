@@ -4,17 +4,36 @@ import t
 import twitter
 import yaml
 from dotenv import load_dotenv
+from discord.ext import commands, tasks
 
 load_dotenv()
 token = os.getenv('DISCORD_TOKEN')
 client = discord.Client()
 
-subscription = ['Nike', 'Asics']
-list1 = []
-
+subscription = []
 @client.event
 async def on_ready():
     print(f'{client.user} has connected to Discord!')
+    sub.start()
+
+@tasks.loop(seconds=10)
+async def sub():
+  channel = client.get_channel(470595825584832512)
+  api = twitter.Api(
+    t.CONSUMER_KEY, t.CONSUMER_SECRET, t.ACCESS_TOKEN_KEY, t.ACCESS_TOKEN_SECRET
+    )
+
+  timeline = api.GetUserTimeline(
+  screen_name='SneakerDealsGB',
+  count=10,
+  trim_user=True,
+  exclude_replies=True,
+  ) 
+
+  for tweet in timeline:
+    for x in subscription:
+      if x in tweet.text:
+        await channel.send(tweet.text)
 
 @client.event
 async def on_message(message):
@@ -23,7 +42,7 @@ async def on_message(message):
   
   if message.content.startswith('!help'):
     await message.channel.send('I am the SneakerHead. Type !help for this help message')
-        
+         
   if message.content.startswith('!latest'):
     api = twitter.Api(
       t.CONSUMER_KEY, t.CONSUMER_SECRET, t.ACCESS_TOKEN_KEY, t.ACCESS_TOKEN_SECRET
@@ -42,14 +61,14 @@ async def on_message(message):
   if message.content.startswith('!sub'):
     api = twitter.Api(
     t.CONSUMER_KEY, t.CONSUMER_SECRET, t.ACCESS_TOKEN_KEY, t.ACCESS_TOKEN_SECRET
-  )
+    )
 
     timeline = api.GetUserTimeline(
     screen_name='SneakerDealsGB',
     count=10,
     trim_user=True,
     exclude_replies=True,
-  ) 
+    ) 
 
     for tweet in timeline:
       for x in subscription:
@@ -57,7 +76,8 @@ async def on_message(message):
           await message.channel.send(tweet.text)
 
   if message.content.startswith('!new'):
-    list1.append(message.content[4:])
-    await message.channel.send(list1[0])
+    subscription.append(message.content[4:])
+    await message.channel.send(message.content[4:] + ' Has been added to subscriptions')
 
-client.run(token)
+
+client.run(token)       
