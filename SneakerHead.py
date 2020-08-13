@@ -20,15 +20,15 @@ async def on_ready():
 async def sub():
   channel = client.get_channel(470595825584832512)
   api = twitter.Api(
-    t.CONSUMER_KEY, t.CONSUMER_SECRET, t.ACCESS_TOKEN_KEY, t.ACCESS_TOKEN_SECRET
-    )
+  t.CONSUMER_KEY, t.CONSUMER_SECRET, t.ACCESS_TOKEN_KEY, t.ACCESS_TOKEN_SECRET
+                   )
 
   timeline = api.GetUserTimeline(
   screen_name='SneakerDealsGB',
   count=10,
   trim_user=True,
-  exclude_replies=True,
-  ) 
+  exclude_replies=True,         
+                                ) 
 
   for tweet in timeline:
     for x in subscription:
@@ -38,14 +38,14 @@ async def sub():
 @client.event
 async def on_message(message):
   if message.author == client.user:
-      return
+    return
   
   if message.content.startswith('!help'):
     await message.channel.send('I am the SneakerHead. Type !help for this help message')
-         
+    
   if message.content.startswith('!latest'):
     api = twitter.Api(
-      t.CONSUMER_KEY, t.CONSUMER_SECRET, t.ACCESS_TOKEN_KEY, t.ACCESS_TOKEN_SECRET
+    t.CONSUMER_KEY, t.CONSUMER_SECRET, t.ACCESS_TOKEN_KEY, t.ACCESS_TOKEN_SECRET
     )
 
     timeline = api.GetUserTimeline(
@@ -77,7 +77,6 @@ async def on_message(message):
 
   if message.content.startswith('!new'):
     subscription.append(message.content[4:])
-    await message.channel.send(message.content[4:] + ' Has been added to subscriptions')
-
-
+    await message.channel.send(message.content[4:] + ' has been added to subscriptions')
+    
 client.run(token)       
