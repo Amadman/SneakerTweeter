@@ -13,22 +13,22 @@ client = discord.Client()
 subscription = []
 @client.event
 async def on_ready():
-    print(f'{client.user} has connected to Discord!')
-    sub.start()
+  print(f'{client.user} has connected to Discord!')
+  sub.start()
 
 @tasks.loop(seconds=10)
 async def sub():
   channel = client.get_channel(470595825584832512)
   api = twitter.Api(
-  t.CONSUMER_KEY, t.CONSUMER_SECRET, t.ACCESS_TOKEN_KEY, t.ACCESS_TOKEN_SECRET
-                   )
+    t.CONSUMER_KEY, t.CONSUMER_SECRET, t.ACCESS_TOKEN_KEY, t.ACCESS_TOKEN_SECRET
+  )
 
   timeline = api.GetUserTimeline(
-  screen_name='SneakerDealsGB',
-  count=10,
-  trim_user=True,
-  exclude_replies=True,         
-                                ) 
+    screen_name='SneakerDealsGB',
+    count=10,
+    trim_user=True,
+    exclude_replies=True,         
+  ) 
 
   for tweet in timeline:
     for x in subscription:
@@ -45,7 +45,7 @@ async def on_message(message):
     
   if message.content.startswith('!latest'):
     api = twitter.Api(
-    t.CONSUMER_KEY, t.CONSUMER_SECRET, t.ACCESS_TOKEN_KEY, t.ACCESS_TOKEN_SECRET
+     t.CONSUMER_KEY, t.CONSUMER_SECRET, t.ACCESS_TOKEN_KEY, t.ACCESS_TOKEN_SECRET
     )
 
     timeline = api.GetUserTimeline(
@@ -54,20 +54,21 @@ async def on_message(message):
       trim_user=True,
       exclude_replies=True,
     )
+    
     if len(timeline) > 0:
       latest_tweet = timeline[0]
       await message.channel.send(latest_tweet.text)
 
   if message.content.startswith('!sub'):
     api = twitter.Api(
-    t.CONSUMER_KEY, t.CONSUMER_SECRET, t.ACCESS_TOKEN_KEY, t.ACCESS_TOKEN_SECRET
+      t.CONSUMER_KEY, t.CONSUMER_SECRET, t.ACCESS_TOKEN_KEY, t.ACCESS_TOKEN_SECRET
     )
 
     timeline = api.GetUserTimeline(
-    screen_name='SneakerDealsGB',
-    count=10,
-    trim_user=True,
-    exclude_replies=True,
+      screen_name='SneakerDealsGB',
+      count=10,
+      trim_user=True,
+      exclude_replies=True,
     ) 
 
     for tweet in timeline:
