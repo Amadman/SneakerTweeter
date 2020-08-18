@@ -45,7 +45,7 @@ async def on_message(message):
     
   if message.content.startswith('!latest'):
     api = twitter.Api(
-     t.CONSUMER_KEY, t.CONSUMER_SECRET, t.ACCESS_TOKEN_KEY, t.ACCESS_TOKEN_SECRET
+      t.CONSUMER_KEY, t.CONSUMER_SECRET, t.ACCESS_TOKEN_KEY, t.ACCESS_TOKEN_SECRET
     )
 
     timeline = api.GetUserTimeline(
