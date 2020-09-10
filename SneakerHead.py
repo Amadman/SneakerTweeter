@@ -3,6 +3,7 @@ import discord
 import t
 import twitter
 import yaml
+import sqlite3
 from dotenv import load_dotenv
 from discord.ext import commands, tasks
 
@@ -10,18 +11,27 @@ load_dotenv()
 token = os.getenv('DISCORD_TOKEN')
 client = discord.Client()
 
-subscription = []
 @client.event
 async def on_ready():
+  conn = sqlite3.connect('subscriptions.sqlite')
+  c = conn.cursor()
+  c.execute('''CREATE TABLE sneakers
+             (subscriptions text, userID integer)''')
+  conn.commit()
+  conn.close()
   print(f'{client.user} has connected to Discord!')
   sub.start()
 
-@tasks.loop(seconds=10)
+@tasks.loop(minutes=1)
 async def sub():
   channel = client.get_channel(470595825584832512)
   api = twitter.Api(
     t.CONSUMER_KEY, t.CONSUMER_SECRET, t.ACCESS_TOKEN_KEY, t.ACCESS_TOKEN_SECRET
   )
+
+  conn = sqlite3.connect('subscriptions.sqlite')
+  c = conn.cursor()
+  c.execute(f"SELECT subscriptions FROM sneakers")
 
   timeline = api.GetUserTimeline(
     screen_name='SneakerDealsGB',
@@ -31,9 +41,12 @@ async def sub():
   ) 
 
   for tweet in timeline:
-    for x in subscription:
-      if x in tweet.text:
-        await channel.send(tweet.text)
+      for row in c.execute('SELECT * FROM sneakers'):
+        if row[0] in tweet.text:
+          user = client.get_user(row[1])
+          await user.send(tweet.text)
+          
+  conn.close()        
 
 @client.event
 async def on_message(message):
@@ -50,7 +63,7 @@ async def on_message(message):
 
     timeline = api.GetUserTimeline(
       screen_name='SneakerDealsGB',
-      count=1,
+      count=10,
       trim_user=True,
       exclude_replies=True,
     )
@@ -59,25 +72,14 @@ async def on_message(message):
       latest_tweet = timeline[0]
       await message.channel.send(latest_tweet.text)
 
-  if message.content.startswith('!sub'):
-    api = twitter.Api(
-      t.CONSUMER_KEY, t.CONSUMER_SECRET, t.ACCESS_TOKEN_KEY, t.ACCESS_TOKEN_SECRET
-    )
-
-    timeline = api.GetUserTimeline(
-      screen_name='SneakerDealsGB',
-      count=10,
-      trim_user=True,
-      exclude_replies=True,
-    ) 
-
-    for tweet in timeline:
-      for x in subscription:
-        if x in tweet.text:
-          await message.channel.send(tweet.text)
-
   if message.content.startswith('!new'):
-    subscription.append(message.content[4:])
+    user_id = (message.author.id)
+    sneaker = (message.content[4:], user_id)
     await message.channel.send(message.content[4:] + ' has been added to subscriptions')
-    
+    conn = sqlite3.connect('subscriptions.sqlite')
+    c = conn.cursor()
+    c.execute("INSERT INTO sneakers VALUES (?, ?)", sneaker )
+    conn.commit()
+    conn.close()
+
 client.run(token)       
